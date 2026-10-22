@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Simulation Generator</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            background-color: #0f172a;
+            color: #f8fafc;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .container {
+            width: 100%;
+            max-width: 800px;
+            text-align: center;
+        }
+        .badge-container {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        .badge {
+            background: #1e293b;
+            border: 1px solid #334155;
+            color: #38bdf8;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+        input[type="text"] {
+            width: 70%;
+            padding: 12px;
+            font-size: 16px;
+            border-radius: 8px;
+            border: 1px solid #475569;
+            background: #1e293b;
+            color: #fff;
+            margin-right: 10px;
+        }
+        button {
+            padding: 12px 20px;
+            font-size: 16px;
+            font-weight: bold;
+            background-color: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        button:hover { background-color: #2563eb; }
+        #loading {
+            display: none;
+            margin: 20px 0;
+            color: #38bdf8;
+            font-weight: 500;
+        }
+        #frame-container {
+            margin-top: 20px;
+            width: 100%;
+            height: 600px;
+            border: 2px solid #334155;
+            border-radius: 12px;
+            overflow: hidden;
+            background: #000;
+            display: none;
+        }
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="badge-container">
+            <span class="badge">🐟 Powered by TinyFish AI</span>
+            <span class="badge">✨ Powered by Google Gemini</span>
+        </div>
+        
+        <h1>Interactive AI Simulation Generator</h1>
+        <p>Type any concept, and our agentic pipeline will pull live web context and build a custom simulation for you.</p>
+        
+        <div style="margin-top: 20px;">
+            <input type="text" id="conceptInput" placeholder="e.g., Solar System Orbit, Quantum Entanglement..." />
+            <button onclick="generateSimulation()">Generate</button>
+        </div>
+
+        <div id="loading">🌐 TinyFish AI is fetching live data, and Gemini is building your simulation... Please wait (~10s)...</div>
+
+        <div id="frame-container">
+            <iframe id="simulationFrame" src=""></iframe>
+        </div>
+    </div>
+
+    <script>
+        async function generateSimulation() {
+            const concept = document.getElementById("conceptInput").value.trim();
+            const loading = document.getElementById("loading");
+            const frameContainer = document.getElementById("frame-container");
+            const iframe = document.getElementById("simulationFrame");
+
+            if (!concept) {
+                alert("Please enter a concept!");
+                return;
+            }
+
+            loading.style.display = "block";
+            frameContainer.style.display = "none";
+
+            try {
+                const response = await fetch("/api/generate", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ concept })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    iframe.src = data.fileUrl + "?t=" + new Date().getTime();
+                    frameContainer.style.display = "block";
+                } else {
+                    alert("Error: " + data.error);
+                }
+            } catch (err) {
+                console.error(err);
+                alert("Something went wrong communicating with the server.");
+            } finally {
+                loading.style.display = "none";
+            }
+        }
+    </script>
+</body>
+</html>

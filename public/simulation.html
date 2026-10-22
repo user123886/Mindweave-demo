@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Understanding Bubble Sort - Interactive Guide & Simulation</title>
+  <style>
+    :root {
+      --bg-primary: #0b0f19;
+      --bg-secondary: #131b2e;
+      --bg-card: #1c2640;
+      --accent-cyan: #06b6d4;
+      --accent-purple: #8b5cf6;
+      --accent-green: #10b981;
+      --accent-amber: #f59e0b;
+      --accent-red: #ef4444;
+      --text-main: #f1f5f9;
+      --text-muted: #94a3b8;
+      --border-color: rgba(255, 255, 255, 0.08);
+      --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-primary);
+      color: var(--text-main);
+      font-family: var(--font-family);
+      line-height: 1.6;
+      padding: 1.5rem;
+    }
+
+    .container {
+      max-width: 1040px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+    }
+
+    header {
+      text-align: center;
+      padding: 1.5rem 0;
+    }
+
+    header h1 {
+      font-size: 2.5rem;
+      background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 0.5rem;
+      font-weight: 800;
+    }
+
+    header p {
+      color: var(--text-muted);
+      font-size: 1.1rem;
+    }
+
+    .card {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 1.75rem;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+    }
+
+    .card h2 {
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+      color: var(--accent-cyan);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    /* Explanation Section */
+    .theory-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      margin-top: 1rem;
+    }
+
+    @media (max-width: 768px) {
+      .theory-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .theory-card {
+      background: var(--bg-card);
+      padding: 1.25rem;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+    }
+
+    .theory-card h3 {
+      font-size: 1.1rem;
+      color: var(--text-main);
+      margin-bottom: 0.5rem;
+    }
+
+    .theory-card p, .theory-card ul {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+    }
+
+    .theory-card ul {
+      list-style-position: inside;
+      margin-top: 0.5rem;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 0.2rem 0.6rem;
+      border-radius: 9999px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      background: rgba(6, 182, 212, 0.15);
+      color: var(--accent-cyan);
+      margin-bottom: 0.5rem;
+    }
+
+    /* Simulation Section */
+    .sim-controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.25rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .button-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    button {
+      background: var(--bg-card);
+      color: var(--text-main);
+      border: 1px solid var(--border-color);
+      padding: 0.55rem 1.1rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.9rem;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    button:hover:not(:disabled) {
+      background: var(--accent-purple);
+      border-color: var(--accent-purple);
+      transform: translateY(-1px);
+    }
+
+    button:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
+    button.primary-btn {
+      background: var(--accent-cyan);
+      color: #0b0f19;
+      border-color: var(--accent-cyan);
+    }
+
+    button.primary-btn:hover:not(:disabled) {
+      background: #0891b2;
+      border-color: #0891b2;
+    }
+
+    .slider-group {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+    }
+
+    input[type="range"] {
+      accent-color: var(--accent-cyan);
+      cursor: pointer;
+    }
+
+    .canvas-container {
+      position: relative;
+      width: 100%;
+      height: 280px;
+      background: #080d1a;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid var(--border-color);
+    }
+
+    canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .legend-and-metrics {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      margin-top: 1rem;
+      padding: 0.75rem 1rem;
+      background: var(--bg-card);
+      border-radius: 8px;
+      font-size: 0.85rem;
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      color: var(--text-muted);
+    }
+
+    .legend-color {
+      width: 12px;
+      height: 12px;
+      border-radius: 2px;
+    }
+
+    .metrics {
+      display: flex;
+      gap: 1.25rem;
+      color: var(--text-muted);
+    }
+
+    .metrics strong {
+      color: var(--text-main);
+    }
+
+    .status-banner {
+      margin-top: 0.75rem;
+      padding: 0.6rem 1rem;
+      border-radius: 6px;
+      background: rgba(14, 165, 233, 0.1);
+      border-left: 3px solid var(--accent-cyan);
+      font-size: 0.9rem;
+      color: var(--text-main);
+      min-height: 2.7rem;
+      display: flex;
+      align-items: center;
+    }
+
+    /* Quiz Section */
+    .quiz-card {
+      margin-top: 1rem;
+    }
+
+    .quiz-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.25rem;
+    }
+
+    .score-badge {
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid var(--accent-green);
+      color: var(--accent-green);
+      padding: 0.35rem 0.85rem;
+      border-radius: 20px;
+      font-weight: 700;
+      font-size: 0.9rem;
+    }
+
+    .question-block {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 1.25rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .question-block h4 {
+      font-size: 1rem;
+      margin-bottom: 0.75rem;
+      color: var(--text-main);
+    }
+
+    .options-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .option-btn {
+      background: #151d30;
+      color: var(--text-main);
+      border: 1px solid var(--border-color);
+      text-align: left;
+      padding: 0.75rem 1rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: all 0.2s;
+      width: 100%;
+    }
+
+    .option-btn:hover:not(:disabled) {
+      background: #1f2b47;
+      border-color: var(--accent-cyan);
+    }
+
+    .option-btn.correct {
+      background: rgba(16, 185, 129, 0.2) !important;
+      border-color: var(--accent-green) !important;
+      color: #34d399 !important;
+    }
+
+    .option-btn.wrong {
+      background: rgba(239, 68, 68, 0.2) !important;
+      border-color: var(--accent-red) !important;
+      color: #f87171 !important;
+    }
+
+    .feedback-box {
+      margin-top: 0.75rem;
+      font-size: 0.85rem;
+      padding: 0.6rem 0.8rem;
+      border-radius: 4px;
+      display: none;
+    }
+
+    .feedback-box.visible {
+      display: block;
+    }
+
+    .feedback-box.correct {
+      background: rgba(16, 185, 129, 0.1);
+      color: #6ee7b7;
+      border-left: 3px solid var(--accent-green);
+    }
+
+    .feedback-box.wrong {
+      background: rgba(239, 68, 68, 0.1);
+      color: #fca5a5;
+      border-left: 3px solid var(--accent-red);
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <!-- Header -->
+  <header>
+    <h1>Bubble Sort Algorithm</h1>
+    <p>A fundamental comparison-based sorting algorithm, fully visualized and explained.</p>
+  </header>
+
+  <!-- Explanation Section -->
+  <section class="card">
+    <h2><span>&#128214;</span> How Bubble Sort Works</h2>
+    <p>
+      <strong>Bubble Sort</strong> is an elementary, comparison-based sorting algorithm. Its name stems from the way larger values gradually <em>"bubble up"</em> to the end of the array, like air bubbles rising in water, as repeated adjacent comparisons and swaps take place.
+    </p>
+
+    <div class="theory-grid">
+      <div class="theory-card">
+        <span class="badge">Mechanics</span>
+        <h3>The Step-by-Step Cycle</h3>
+        <p>In each pass through the array:</p>
+        <ul>
+          <li>Traverse adjacent pairs from index <code>0</code> to <code>n - i - 1</code>.</li>
+          <li>If the left item is greater than the right item (<code>arr[j] &gt; arr[j+1]</code>), swap them.</li>
+          <li>After pass <code>i</code>, the <code>(i+1)</code>th largest element is locked into its correct final sorted slot at the end.</li>
+        </ul>
+      </div>
+
+      <div class="theory-card">
+        <span class="badge">Optimization</span>
+        <h3>Early Exit Optimization</h3>
+        <p>
+          A standard bubble sort executes $\approx n^2 / 2$ comparisons regardless of initial array order. However, by tracking whether <em>any</em> swap happened during a pass, we can stop immediately if a pass finishes with zero swaps.
+        </p>
+        <p style="margin-top: 0.4rem;">This drops the best-case time complexity to linear <strong>$O(n)$</strong> on pre-sorted data.</p>
+      </div>
+
+      <div class="theory-card">
+        <span class="badge">Complexity</span>
+        <h3>Time & Space Complexity</h3>
+        <ul>
+          <li><strong>Worst Case:</strong> $O(n^2)$ (Array sorted in reverse order)</li>
+          <li><strong>Average Case:</strong> $O(n^2)$</li>
+          <li><strong>Best Case:</strong> $O(n)$ (With swapped flag optimization)</li>
+          <li><strong>Auxiliary Space:</strong> $O(1)$ (In-place sort)</li>
+        </ul>
+      </div>
+
+      <div class="theory-card">
+        <span class="badge">Properties</span>
+        <h3>Stability & Practicality</h3>
+        <p>
+          Bubble sort is <strong>stable</strong>: identical elements never swap past each other because elements are only swapped when one is strictly greater (<code>&gt;</code>).
+        </p>
+        <p style="margin-top: 0.4rem;">
+          While easy to understand, it is rarely used in production due to quadratic performance compared to $O(n \log n)$ algorithms like Quick Sort or Merge Sort.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Simulation Section -->
+  <section class="card">
+    <h2><span>&#9881;</span> Interactive Simulation</h2>
+
+    <div class="sim-controls">
+      <div class="button-group">
+        <button id="btn-play" class="primary-btn">&#9654; Play</button>
+        <button id="btn-step">&#9197; Step</button>
+        <button id="btn-reset">&#8635; Shuffle / Reset</button>
+      </div>
+
+      <div class="slider-group">
+        <label for="speed-range">Speed:</label>
+        <input type="range" id="speed-range" min="10" max="400" value="180">
+      </div>
+
+      <div class="slider-group">
+        <label for="size-range">Items:</label>
+        <input type="range" id="size-range" min="8" max="40" value="18">
+      </div>
+    </div>
+
+    <div class="canvas-container">
+      <canvas id="sim-canvas"></canvas>
+    </div>
+
+    <div class="legend-and-metrics">
+      <div class="legend">
+        <div class="legend-item">
+          <div class="legend-color" style="background: #38bdf8;"></div> Unsorted
+        </div>
+        <div class="legend-item">
+          <div class="legend-color" style="background: var(--accent-amber);"></div> Comparing
+        </div>
+        <div class="legend-item">
+          <div class="legend-color" style="background: var(--accent-red);"></div> Swapping
+        </div>
+        <div class="legend-item">
+          <div class="legend-color" style="background: var(--accent-green);"></div> Sorted
+        </div>
+      </div>
+
+      <div class="metrics">
+        <div>Pass: <strong id="metric-pass">0</strong></div>
+        <div>Comparisons: <strong id="metric-comparisons">0</strong></div>
+        <div>Swaps: <strong id="metric-swaps">0</strong></div>
+      </div>
+    </div>
+
+    <div class="status-banner" id="status-text">
+      Ready. Click "Play" for continuous animation or "Step" to step through one comparison.
+    </div>
+  </section>
+
+  <!-- Quiz Section -->
+  <section class="card quiz-card">
+    <div class="quiz-header">
+      <h2><span>&#10003;</span> Knowledge Check</h2>
+      <div class="score-badge" id="score-tracker">Score: 0 / 3</div>
+    </div>
+
+    <!-- Question 1 -->
+    <div class="question-block" id="q1">
+      <h4>1. What is the time complexity of an optimized Bubble Sort on an already-sorted array?</h4>
+      <div class="options-grid">
+        <button class="option-btn" data-q="0" data-idx="0">A) O(1)</button>
+        <button class="option-btn" data-q="0" data-idx="1">B) O(n)</button>
+        <button class="option-btn" data-q="0" data-idx="2">C) O(n log n)</button>
+        <button class="option-btn" data-q="0" data-idx="3">D) O(n²)</button>
+      </div>
+      <div class="feedback-box" id="feedback-0"></div>
+    </div>
+
+    <!-- Question 2 -->
+    <div class="question-block" id="q2">
+      <h4>2. Why is Bubble Sort considered a "stable" sorting algorithm?</h4>
+      <div class="options-grid">
+        <button class="option-btn" data-q="1" data-idx="0">A) It requires O(1) auxiliary memory space.</button>
+        <button class="option-btn" data-q="1" data-idx="1">B) It preserves the relative order of duplicate elements because it only swaps when one is strictly greater.</button>
+        <button class="option-btn" data-q="1" data-idx="2">C) Its worst-case time complexity does not exceed O(n log n).</button>
+        <button class="option-btn" data-q="1" data-idx="3">D) It divides arrays into equal halves like Merge Sort.</button>
+      </div>
+      <div class="feedback-box" id="feedback-1"></div>
+    </div>
+
+    <!-- Question 3 -->
+    <div class="question-block" id="q3">
+      <h4>3. After completing the first pass of Bubble Sort, what can always be guaranteed?</h4>
+      <div class="options-grid">
+        <button class="option-btn" data-q="2" data-idx="0">A) The smallest element is at index 0.</button>
+        <button class="option-btn" data-q="2" data-idx="1">B) The entire array is sorted.</button>
+        <button class="option-btn" data-q="2" data-idx="2">C) The largest element has bubbled into its final position at the end of the array.</button>
+        <button class="option-btn" data-q="2" data-idx="3">D) Exactly half of the elements are sorted.</button>
+      </div>
+      <div class="feedback-box" id="feedback-2"></div>
+    </div>
+  </section>
+</div>
+
+<script>
+  /* --- Simulation Code --- */
+  const canvas = document.getElementById('sim-canvas');
+  const ctx = canvas.getContext('2d');
+
+  const btnPlay = document.getElementById('btn-play');
+  const btnStep = document.getElementById('btn-step');
+  const btnReset = document.getElementById('btn-reset');
+  const speedRange = document.getElementById('speed-range');
+  const sizeRange = document.getElementById('size-range');
+
+  const metricPass = document.getElementById('metric-pass');
+  const metricComparisons = document.getElementById('metric-comparisons');
+  const metricSwaps = document.getElementById('metric-swaps');
+  const statusText = document.getElementById('status-text');
+
+  let array = [];
+  let isPlaying = false;
+  let timer = null;
+
+  let comparisons = 0;
+  let swaps = 0;
+  let passCount = 0;
+
+  let i = 0;
+  let j = 0;
+  let hasSwapped = false;
+  let sortedIndex = null; // elements at index >= sortedIndex are sorted
+  let currentComparing = [];
+  let currentSwapping = [];
+  let isFinished = false;
+
+  function resizeCanvas() {
+    const rect = canvas.parentElement.getBoundingClientRect();
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = rect.width * dpr;
+    canvas.height = rect.height * dpr;
+    ctx.resetTransform();
+    ctx.scale(dpr, dpr);
+    draw();
+  }
+
+  window.addEventListener('resize', resizeCanvas);
+
+  function generateArray(size) {
+    array = [];
+    for (let k = 0; k < size; k++) {
+      array.push(Math.floor(Math.random() * 85) + 12);
+    }
+    resetState();
+  }
+
+  function resetState() {
+    pause();
+    comparisons = 0;
+    swaps = 0;
+    passCount = 0;
+    i = 0;
+    j = 0;
+    hasSwapped = false;
+    sortedIndex = array.length;
+    currentComparing = [];
+    currentSwapping = [];
+    isFinished = false;
+
+    updateMetrics();
+    statusText.innerText = "Array randomized. Ready to begin sorting.";
+    draw();
+  }
+
+  function updateMetrics() {
+    metricPass.innerText = passCount;
+    metricComparisons.innerText = comparisons;
+    metricSwaps.innerText = swaps;
+  }
+
+  function step() {
+    if (isFinished) return;
+
+    const n = array.length;
+
+    // Check if we are done with outer loop
+    if (i >= n - 1) {
+      isFinished = true;
+      sortedIndex = 0;
+      currentComparing = [];
+      currentSwapping = [];
+      pause();
+      statusText.innerText = `Sorting complete! All ${n} elements are in order.`;
+      draw();
+      return;
+    }
+
+    // Step comparison
+    currentComparing = [j, j + 1];
+    comparisons++;
+
+    if (array[j] > array[j + 1]) {
+      // Swap
+      currentSwapping = [j, j + 1];
+      let temp = array[j];
+      array[j] = array[j + 1];
+      array[j + 1] = temp;
+      swaps++;
+      hasSwapped = true;
+      statusText.innerText = `Swapped arr[${j}] (${array[j+1]}) and arr[${j+1}] (${array[j]}) because ${array[j+1]} > ${array[j]}.`;
+    } else {
+      currentSwapping = [];
+      statusText.innerText = `Comparing arr[${j}] (${array[j]}) and arr[${j+1}] (${array[j+1]}): in order, no swap needed.`;
+    }
+
+    j++;
+    updateMetrics();
+    draw();
+
+    // Check if inner pass ended
+    if (j >= n - i - 1) {
+      passCount++;
+      sortedIndex = n - i - 1;
+      j = 0;
+      i++;
+
+      if (!hasSwapped) {
+        // Optimized early exit
+        isFinished = true;
+        sortedIndex = 0;
+        currentComparing = [];
+        currentSwapping = [];
+        pause();
+        statusText.innerText = `Early exit! No swaps detected in pass ${passCount}. Array is fully sorted.`;
+        draw();
+        return;
+      }
+
+      hasSwapped = false;
+    }
+  }
+
+  function getStepDelay() {
+    // invert value: higher slider = faster (shorter delay)
+    const val = parseInt(speedRange.value, 10);
+    return Math.max(20, 420 - val);
+  }
+
+  function playLoop() {
+    if (!isPlaying) return;
+    step();
+    if (!isFinished) {
+      timer = setTimeout(playLoop, getStepDelay());
+    } else {
+      pause();
+    }
+  }
+
+  function play() {
+    if (isFinished) {
+      generateArray(parseInt(sizeRange.value, 10));
+    }
+    isPlaying = true;
+    btnPlay.innerText = "⏸ Pause";
+    btnStep.disabled = true;
+    playLoop();
+  }
+
+  function pause() {
+    isPlaying = false;
+    btnPlay.innerText = "▶ Play";
+    btnStep.disabled = false;
+    clearTimeout(timer);
+  }
+
+  function draw() {
+    const rect = canvas.parentElement.getBoundingClientRect();
+    const width = rect.width;
+    const height = rect.height;
+
+    ctx.clearRect(0, 0, width, height);
+
+    const n = array.length;
+    const padding = 16;
+    const usableWidth = width - padding * 2;
+    const barSpacing = Math.max(2, usableWidth / (n * 7));
+    const totalSpacing = barSpacing * (n - 1);
+    const barWidth = Math.max(2, (usableWidth - totalSpacing) / n);
+    const maxVal = 100;
+    const chartHeight = height - 45;
+
+    for (let k = 0; k < n; k++) {
+      const val = array[k];
+      const barHeight = (val / maxVal) * chartHeight;
+      const x = padding + k * (barWidth + barSpacing);
+      const y = height - barHeight - 20;
+
+      // Determine bar color
+      let fillColor = "#38bdf8"; // default blue
+      if (k >= sortedIndex) {
+        fillColor = "#10b981"; // green sorted
+      }
+      if (currentComparing.includes(k)) {
+        fillColor = "#f59e0b"; // amber comparing
+      }
+      if (currentSwapping.includes(k)) {
+        fillColor = "#ef4444"; // red swapping
+      }
+
+      ctx.fillStyle = fillColor;
+      ctx.beginPath();
+      ctx.roundRect ? ctx.roundRect(x, y, barWidth, barHeight, [4, 4, 0, 0]) : ctx.rect(x, y, barWidth, barHeight);
+      ctx.fill();
+
+      // Show values if reasonable number of bars
+      if (n <= 25) {
+        ctx.fillStyle = "#94a3b8";
+        ctx.font = "10px sans-serif";
+        ctx.textAlign = "center";
+        ctx.fillText(val, x + barWidth / 2, y - 5);
+      }
+    }
+  }
+
+  btnPlay.addEventListener('click', () => {
+    if (isPlaying) pause();
+    else play();
+  });
+
+  btnStep.addEventListener('click', () => {
+    pause();
+    step();
+  });
+
+  btnReset.addEventListener('click', () => {
+    generateArray(parseInt(sizeRange.value, 10));
+  });
+
+  sizeRange.addEventListener('input', () => {
+    generateArray(parseInt(sizeRange.value, 10));
+  });
+
+  // Init visualizer
+  resizeCanvas();
+  generateArray(parseInt(sizeRange.value, 10));
+
+  /* --- Interactive Quiz Logic --- */
+  const quizData = [
+    {
+      correct: 1,
+      explanation: "With the early exit swap check, if no adjacent elements need swapping during the first pass, the algorithm terminates immediately after n-1 comparisons, yielding O(n) linear time."
+    },
+    {
+      correct: 1,
+      explanation: "Bubble Sort uses a strict greater-than comparison (arr[j] > arr[j+1]). Equal elements are never swapped, preserving their original relative order."
+    },
+    {
+      correct: 2,
+      explanation: "In pass 1, adjacent swaps bubble the largest element to index n-1. Each subsequent pass locks the next largest element into place."
+    }
+  ];
+
+  let answers = [null, null, null];
+
+  const optionButtons = document.querySelectorAll('.option-btn');
+  const scoreTracker = document.getElementById('score-tracker');
+
+  optionButtons.forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const qIdx = parseInt(e.currentTarget.getAttribute('data-q'), 10);
+      const optIdx = parseInt(e.currentTarget.getAttribute('data-idx'), 10);
+
+      // Disable selecting other options for this question once answered
+      const parentBlock = document.getElementById(`q${qIdx + 1}`);
+      const siblingButtons = parentBlock.querySelectorAll('.option-btn');
+      siblingButtons.forEach(b => b.disabled = true);
+
+      answers[qIdx] = optIdx;
+
+      const feedbackBox = document.getElementById(`feedback-${qIdx}`);
+      const isCorrect = optIdx === quizData[qIdx].correct;
+
+      if (isCorrect) {
+        e.currentTarget.classList.add('correct');
+        feedbackBox.className = 'feedback-box visible correct';
+        feedbackBox.innerHTML = `<strong>Correct!</strong> ${quizData[qIdx].explanation}`;
+      } else {
+        e.currentTarget.classList.add('wrong');
+        siblingButtons[quizData[qIdx].correct].classList.add('correct');
+        feedbackBox.className = 'feedback-box visible wrong';
+        feedbackBox.innerHTML = `<strong>Incorrect.</strong> ${quizData[qIdx].explanation}`;
+      }
+
+      // Update score
+      const currentScore = answers.reduce((acc, val, idx) => {
+        return val === quizData[idx].correct ? acc + 1 : acc;
+      }, 0);
+      scoreTracker.innerText = `Score: ${currentScore} / 3`;
+    });
+  });
+</script>
+
+</body>
+</html>
